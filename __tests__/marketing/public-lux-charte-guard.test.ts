@@ -33,6 +33,7 @@ const MIGRATED_PUBLIC_PAGES = [
   'app/page.tsx', // home
   'app/HomePageClient.tsx',
   'app/offres/page.tsx',
+  'app/inscription-bac-2027/page.tsx', // index des dossiers d'inscription 2027
   'app/offres/_components/OffersFiltersClient.tsx',
   'app/notre-centre/page.tsx',
   'app/accompagnement-scolaire/page.tsx',

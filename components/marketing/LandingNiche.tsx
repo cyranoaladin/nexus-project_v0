@@ -29,7 +29,8 @@ export type NicheSection = {
 };
 
 export type RelatedLink = {
-  href: PreparationLink['href'];
+  /** Les quatre pages de préparation, plus les dossiers d'inscription datés. */
+  href: PreparationLink['href'] | '/inscription-bac-2027';
   label: string;
   description?: string;
 };

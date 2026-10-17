@@ -1,6 +1,7 @@
 import '@testing-library/jest-dom';
 import { render, screen, within } from '@testing-library/react';
 import OffresPage from '@/app/offres/page';
+import { fmtHeures, getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { CGV_POLICY } from '@/lib/cgv-policy';
 import { LEGAL } from '@/lib/legal';
 
@@ -82,8 +83,68 @@ describe('OffresPage', () => {
     for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
       expect(within(section).getByRole('article', { name: new RegExp(niveau) })).toHaveTextContent(/frais de dossier/i);
     }
-    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800/);
+    expect(within(section).getByRole('article', { name: /Terminale/ })).toHaveTextContent(/8 × 850 puis 800 TND/);
     expect(section.textContent).not.toMatch(/tout compris/i);
+  });
+
+  /**
+   * Les deux entrées, jamais une seule : c'est le même prix annuel réparti
+   * depuis le mois où la famille s'inscrit, pas deux offres concurrentes.
+   */
+  it('cartes candidats libres : les DEUX échéanciers, chacun étiqueté par son mois', () => {
+    render(<OffresPage />);
+    const section = screen.getByTestId('section-libre');
+    const premiere = within(section).getByRole('article', { name: /Première/ });
+    expect(premiere).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 580 puis 560 TND.*pour une inscription en octobre/);
+    expect(premiere).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 650 TND.*pour une inscription en novembre/);
+  });
+
+  /**
+   * Le Diagnostic du bloc Boussole appartient au catalogue scolarisés : son
+   * prix n'est pas touché. Sans la mention du périmètre, une famille candidat
+   * libre — qui a déjà un Diagnostic à 190/290, déduit une seule fois — croit
+   * à une seconde déduction.
+   */
+  it('Diagnostic Stratégique : la déduction est bornée au parcours annuel scolarisés', () => {
+    const { container } = render(<OffresPage />);
+    const carte = container.querySelector('#diagnostic')!;
+    expect(carte).toHaveTextContent('Diagnostic Stratégique');
+    expect(carte).toHaveTextContent('Déductible du parcours annuel scolarisés');
+  });
+
+  /**
+   * Au 10/11 les deux offres de frais de dossier sont échues : les cartes
+   * annoncent les frais comme dus, sans date. Une date passée présentée comme
+   * une offre courante est la faute que ce garde empêche.
+   */
+  it('cartes candidats libres : plus de date d’offre une fois l’échéance passée', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-11-10T10:00:00+01:00'));
+    render(<OffresPage />);
+    jest.useRealTimers();
+    const section = screen.getByTestId('section-libre');
+    expect(section.textContent).not.toMatch(/offerts jusqu’au/);
+    for (const niveau of ['Première', 'Terminale', 'Bac en 1 an']) {
+      expect(within(section).getByRole('article', { name: new RegExp(niveau) }))
+        .toHaveTextContent(/frais de dossier et d’accompagnement Cyclades\s*: 250 TND/);
+    }
+  });
+
+  /**
+   * Même phrase que sur /bac-candidat-libre, depuis le même champ : le total
+   * encadré est ce que la famille reçoit, et un chiffre sans sa définition est
+   * une friction. La seconde moitié de la phrase n'est pas décorative.
+   */
+  it('cartes candidats libres : le total encadré, dans la formulation du dossier parents', () => {
+    render(<OffresPage />);
+    const section = screen.getByTestId('section-libre');
+    for (const parcours of getCandidatsLibres2027().parcours) {
+      const carte = within(section).getByRole('article', { name: new RegExp(parcours.niveau) });
+      expect(carte).toHaveTextContent(
+        `Total encadré : ${fmtHeures(parcours.heures_encadrees_total)} h par élève, avec cours, blancs, oraux et bilans.`,
+      );
+      // Les heures de cours restent affichées, nommées : deux chiffres définis.
+      expect(carte).toHaveTextContent(new RegExp(`${parcours.heures_cours} h de cours`));
+    }
   });
 
   it('ne vend plus la plateforme ARIA seule (décision D11)', () => {

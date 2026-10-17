@@ -105,12 +105,21 @@ describe('miroir d’activité et catalogue', () => {
     expect(await prisma.espaceActivity.count({ where: { slug: { in: ACTIVITIES.map((a) => a.slug) } } })).toBe(ACTIVITIES.length);
   });
 
-  it('le tableau de bord NSI regroupe POO d’un côté, Algorithmique de l’autre ; Maths sans thème', async () => {
+  /**
+   * Trois thèmes depuis le 09/10/2026 : `c57bd978b` a ajouté le module
+   * « Préparation de l'évaluation » au catalogue NSI sans élargir cette
+   * attente, écrite le 04/10 par `cabf20ce1`. Le test est resté rouge cinq
+   * semaines, invisible parce que cette voie n'est exécutée qu'avec une base
+   * réelle. L'attente suit maintenant le catalogue, et son ordre : un thème
+   * ajouté demain la fera tomber de nouveau, ce qui est le but.
+   */
+  it('le tableau de bord NSI regroupe POO, Algorithmique puis Préparation ; Maths sans thème', async () => {
     const dash = await getStudentDashboard(lea);
     const nsi = dash.subjects.find((s) => s.subject === 'NSI')!;
     expect(groupActivitiesByTheme(nsi.activities).map((g) => [g.theme, g.activities.map((a) => a.title)])).toEqual([
       ['Programmation orientée objet', ['TP POO 1 — Des objets qui agissent', 'TP POO 2 — Listes, piles et files']],
       ['Algorithmique et programmation', ['Récursivité et programmation récursive']],
+      ['Préparation de l’évaluation', ['TAD, POO et récursivité — sujets d’entraînement corrigés']],
     ]);
     const maths = dash.subjects.find((s) => s.subject === 'MATHEMATIQUES')!;
     expect(groupActivitiesByTheme(maths.activities)).toHaveLength(1);

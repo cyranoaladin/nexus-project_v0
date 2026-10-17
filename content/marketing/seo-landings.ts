@@ -105,7 +105,14 @@ export const seoLandings = {
         ],
       },
     ],
-    relatedLinks: relatedLinksFor('/candidat-libre-bac-francais'),
+    relatedLinks: [
+      ...relatedLinksFor('/candidat-libre-bac-francais'),
+      {
+        href: '/inscription-bac-2027',
+        label: 'S’inscrire au bac 2027',
+        description: 'La campagne Cyclades écran par écran, pièces à fournir et choix d’épreuves, en bac général et en bac STMG.',
+      },
+    ],
     offerRefs: [
       { type: 'candidat-libre', id: 'premiere' },
       { type: 'candidat-libre', id: 'terminale' },

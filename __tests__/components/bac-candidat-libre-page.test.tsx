@@ -3,6 +3,7 @@ import { render, screen, within } from '@testing-library/react';
 
 import BacCandidatLibrePage, { metadata, revalidate } from '@/app/bac-candidat-libre/page';
 import { fmtPrice as fmtBrut } from '@/components/premium/format';
+import { fmtHeures, getCandidatsLibres2027 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
 
 jest.mock('next/link', () => {
@@ -53,20 +54,39 @@ describe('/bac-candidat-libre', () => {
     expect(h1[0]).toHaveTextContent(/bac français/i);
   });
 
-  test('les trois parcours avec leur prix annuel et leur mensualité affichée', () => {
+  /**
+   * Les DEUX entrées sont rendues sur chaque carte, chacune avec son mois
+   * d'inscription. Afficher la seule entrée d'octobre trompe une famille de
+   * novembre ; afficher la seule entrée de novembre montre à une famille
+   * d'octobre un mensuel plus élevé que le sien.
+   *
+   * Le brief du 13/10 qui fixait la Première à huit mensualités porte sur la
+   * créative vidéo diffusée du 01/11 au 20/11, pas sur cette page.
+   */
+  test('les trois parcours : prix annuel et les DEUX échéanciers étiquetés par leur mois', () => {
     renderAu('2026-10-14T10:00:00+01:00');
     const premiere = screen.getByRole('article', { name: /Première/ });
-    expect(premiere).toHaveTextContent(fmtPrice(650));
-    expect(premiere).toHaveTextContent(/8 mensualités/);
     expect(premiere).toHaveTextContent(fmtPrice(5200));
+    expect(premiere).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 580 puis 560 TND.*pour une inscription en octobre/);
+    expect(premiere).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 650 TND.*pour une inscription en novembre/);
     const terminale = screen.getByRole('article', { name: /Terminale/ });
-    expect(terminale).toHaveTextContent(fmtPrice(850));
-    expect(terminale).toHaveTextContent(/9 mensualités/);
     expect(terminale).toHaveTextContent(fmtPrice(7600));
+    expect(terminale).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 850 puis 800 TND.*pour une inscription en octobre/);
+    expect(terminale).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 950 TND.*pour une inscription en novembre/);
     const b1a = screen.getByRole('article', { name: /Bac en 1 an/ });
-    expect(b1a).toHaveTextContent(fmtPrice(1290));
     expect(b1a).toHaveTextContent(fmtPrice(11600));
+    expect(b1a).toHaveTextContent(/9 mensualités, d’octobre à juin.*8 × 1 290 puis 1 280 TND.*pour une inscription en octobre/);
+    expect(b1a).toHaveTextContent(/8 mensualités, de novembre à juin.*8 × 1 450 TND.*pour une inscription en novembre/);
     expect(b1a).toHaveTextContent(/éligibilité/i);
+  });
+
+  test('l’entrée mise en avant est celle de la date du jour', () => {
+    renderAu('2026-10-14T10:00:00+01:00');
+    expect(screen.getByRole('article', { name: /Première/ }))
+      .toHaveTextContent(`${fmtPrice(580)} TND / mois`);
+    renderAu('2026-11-05T10:00:00+01:00');
+    expect(screen.getAllByRole('article', { name: /Première/ }).at(-1))
+      .toHaveTextContent(`${fmtPrice(650)} TND / mois`);
   });
 
   test('groupes de 12 au plus, et ce qui n’est pas préparé', () => {
@@ -108,7 +128,34 @@ describe('/bac-candidat-libre', () => {
 
   test('la dernière mensualité ajustée est indiquée (Terminale : 8 × 850 puis 800)', () => {
     renderAu('2026-10-14T10:00:00+01:00');
-    expect(screen.getByRole('article', { name: /Terminale/ })).toHaveTextContent(/dernière.*800 TND/);
+    expect(screen.getByRole('article', { name: /Terminale/ })).toHaveTextContent(/8 × 850 puis 800 TND/);
+  });
+
+  /**
+   * Les prix des produits courts sont adoptés par la direction mais leur
+   * régime fiscal n'est pas attesté par le comptable : le dossier bloque
+   * « toute offre commerciale ferme » sur ce point. Rien n'en sort tant que le
+   * drapeau n'est pas levé.
+   */
+  describe('produits courts — non publiés tant que le régime fiscal n’est pas attesté', () => {
+    const produits = getCandidatsLibres2027().produits_courts.produits;
+    afterEach(() => { delete process.env.PRODUITS_COURTS_PUBLIES; });
+
+    test('sans drapeau : ni la section, ni les libellés, ni la question de FAQ', () => {
+      renderAu('2026-10-14T10:00:00+01:00');
+      expect(screen.queryByRole('heading', { name: /produits courts/i })).not.toBeInTheDocument();
+      for (const produit of produits) {
+        expect(document.body.textContent).not.toContain(produit.libelle);
+      }
+      expect(document.body.textContent).not.toMatch(/suivre un stage seul/i);
+    });
+
+    test('drapeau levé : la section et les prix reviennent sans autre changement', () => {
+      process.env.PRODUITS_COURTS_PUBLIES = 'true';
+      renderAu('2026-10-14T10:00:00+01:00');
+      expect(screen.getByRole('heading', { name: /produits courts/i })).toBeInTheDocument();
+      expect(document.body.textContent).toContain(produits[0].libelle);
+    });
   });
 
   test('adresse du centre et contact WhatsApp', () => {
@@ -130,12 +177,60 @@ describe('/bac-candidat-libre', () => {
     const blocs = jsonLd(container);
     const cours = blocs.find((b) => b['@type'] === 'Course');
     expect(cours.offers).toHaveLength(3);
+    // Le contrat vend « 189 h de cours, 219,5 h encadrées ». C'est le second
+    // chiffre qui est le total de ce que la famille reçoit, et c'est la donnée
+    // structurée qu'une machine cite : déclarer 189 h annoncerait moins que le
+    // contrat. Le texte lisible garde 189 h, là où il est nommé « heures de cours ».
+    expect(cours.hasCourseInstance.map((i: any) => i.courseWorkload))
+      .toEqual(['PT219H30M', 'PT329H', 'PT568H']);
+    const data = getCandidatsLibres2027();
+    for (const [i, instance] of cours.hasCourseInstance.entries()) {
+      expect(instance.courseWorkload).not.toBe(`PT${data.parcours[i].heures_cours}H`);
+    }
     expect(cours.offers.map((o: any) => o.price)).toEqual([5200, 7600, 11600]);
     expect(cours.offers.every((o: any) => o.priceCurrency === 'TND')).toBe(true);
     expect(cours.provider.address.streetAddress).toBe(LEGAL.addresses.pedagogique.street);
     const faq = blocs.find((b) => b['@type'] === 'FAQPage');
     expect(faq.mainEntity.length).toBeGreaterThanOrEqual(6);
     expect(blocs.find((b) => b['@type'] === 'BreadcrumbList')).toBeDefined();
+  });
+
+  test('le 10/11, la FAQ n’annonce plus de période d’offre sur les frais de dossier', () => {
+    renderAu('2026-11-10T10:00:00+01:00');
+    expect(document.body.textContent).not.toMatch(/offerts pendant certaines périodes/i);
+    // Les frais restent annoncés : ils sont dus, pas effacés.
+    expect(document.body.textContent).toMatch(/frais de dossier/i);
+  });
+
+  /**
+   * Une donnée structurée qui annonce le total encadré quand la page ne montre
+   * que les heures de cours décrit une page qui n'existe pas. Les deux chiffres
+   * sont affichés, chacun avec sa définition — c'est la même règle que pour les
+   * deux échéanciers.
+   *
+   * Et surtout : le nombre affiché et celui de courseWorkload sont comparés ici.
+   * S'ils peuvent diverger, ils divergeront.
+   */
+  test('total encadré : la phrase approuvée, et le même nombre que courseWorkload', () => {
+    const { container } = renderAu('2026-10-14T10:00:00+01:00');
+    const cours = jsonLd(container).find((b) => b['@type'] === 'Course');
+    const data = getCandidatsLibres2027();
+
+    /** « PT219H30M » → 219.5 : on remonte à la valeur, pas à la chaîne. */
+    const heuresDepuisIso = (iso: string) => {
+      const m = /^PT(\d+)H(?:(\d+)M)?$/.exec(iso)!;
+      return Number(m[1]) + Number(m[2] ?? 0) / 60;
+    };
+
+    for (const [i, p] of data.parcours.entries()) {
+      const article = screen.getByRole('article', { name: new RegExp(p.niveau) });
+      expect(article).toHaveTextContent(
+        `Total encadré : ${fmtHeures(p.heures_encadrees_total)} h par élève, avec cours, blancs, oraux et bilans.`,
+      );
+      expect(heuresDepuisIso(cours.hasCourseInstance[i].courseWorkload)).toBe(p.heures_encadrees_total);
+      // Les heures de cours restent affichées, nommées : deux chiffres définis.
+      expect(article).toHaveTextContent(new RegExp(`${p.heures_cours} h de cours`));
+    }
   });
 
   test('aucune promesse de résultat', () => {

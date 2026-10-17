@@ -42,6 +42,35 @@ describe('Centre pédagogique — 17 rue Ali Zlitni, Manar III', () => {
     expect(offenders).toEqual([]);
   });
 
+  /**
+   * Les dossiers « Inscription 2027 » sont des documents audités servis tels
+   * quels, par un rewrite : ils ne peuvent pas lire LEGAL, et l'adresse y est
+   * forcément littérale. Le garde s'inverse donc pour eux — l'adresse
+   * canonique doit y être écrite, l'ancienne absente.
+   *
+   * Ce garde est né d'une erreur réelle. Les deux dossiers ont été publiés le
+   * 16/10/2026 en portant encore « Centre pédagogique Mutuelleville, Tunis »,
+   * parce qu'ils vivent hors des quatre préfixes scannés plus haut : un garde
+   * dont la portée s'arrête avant le fichier fautif ne protège personne.
+   */
+  it('les documents servis tels quels portent l’adresse canonique, et pas l’ancienne', () => {
+    const dossiers = ['content/inscription-2027/source', 'public/inscription-bac-2027'];
+    const documents = dossiers.flatMap((dossier) => {
+      const absolu = path.join(ROOT, dossier);
+      if (!fs.existsSync(absolu)) return [];
+      return fs.readdirSync(absolu).filter((f) => f.endsWith('.html')).map((f) => path.join(dossier, f));
+    });
+    // Le compte protège contre un garde qui ne trouverait plus rien à scanner.
+    expect(documents.length).toBeGreaterThanOrEqual(4);
+    for (const chemin of documents) {
+      const texte = fs.readFileSync(path.join(ROOT, chemin), 'utf-8');
+      expect(`${chemin} porte Mutuelleville : ${texte.includes('Mutuelleville')}`)
+        .toBe(`${chemin} porte Mutuelleville : false`);
+      expect(`${chemin} porte l’adresse canonique : ${texte.includes(LEGAL.addresses.pedagogique.full)}`)
+        .toBe(`${chemin} porte l’adresse canonique : true`);
+    }
+  });
+
   it('aucun quartier du centre écrit en dur : les pages lisent LEGAL', () => {
     const offenders = trackedSources().filter((file) => {
       if (file === 'lib/legal.ts') return false;

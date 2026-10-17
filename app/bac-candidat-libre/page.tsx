@@ -14,10 +14,14 @@ import {
   jourMoisHeure,
 } from '@/content/marketing/bac-candidat-libre';
 import {
+  dureeIso,
+  echeanciersParMoisEntree,
+  texteTotalEncadre,
   getAteliersCycladesAVenir,
   getCandidatsLibres2027,
   getFraisDossierOffertsActifs,
   getSemaineDiagnostic,
+  produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
 import { LEGAL } from '@/lib/legal';
@@ -37,26 +41,26 @@ const NBSP = ' ';
 const tnd = (n: number) => `${fmtMontant(n)}${NBSP}TND`;
 
 function Mensualite({ parcours, maintenant }: { parcours: ParcoursCandidatLibre; maintenant: Date }) {
-  const huit = parcours.echeancier_affiche === 8;
-  const echeancier = huit ? parcours.echeancier_8 : parcours.echeancier_9;
+  const entrees = echeanciersParMoisEntree(parcours, maintenant);
+  const enAvant = entrees.find((e) => e.enAvant) ?? entrees[0];
   return (
     <div className="mt-5">
       <p className="font-fraunces text-4xl font-light tabular-nums text-lux-ink">
-        {fmtMontant(echeancier.mensualite)}
+        {fmtMontant(enAvant.echeancier.mensualite)}
         <span className="ml-1 font-body text-base text-lux-slate">{NBSP}TND / mois</span>
-      </p>
-      <p className="mt-1 text-sm text-lux-slate">
-        × {huit ? 8 : 9} mensualités, {huit ? 'de novembre à juin' : 'd’octobre à juin'}
-        {echeancier.derniere !== echeancier.mensualite ? ` (dernière : ${tnd(echeancier.derniere)})` : ''}
       </p>
       <p className="mt-1 text-sm font-semibold text-lux-ink">
         {tnd(parcours.prix_annuel)} par an · comptant {tnd(parcours.comptant)}
       </p>
-      <p className="mt-1 text-xs text-lux-slate">
-        {huit
-          ? `ou 9 mensualités de ${tnd(parcours.echeancier_9.mensualite)} dès octobre`
-          : `ou 8 mensualités de ${tnd(parcours.echeancier_8.mensualite)} dès novembre`}
-      </p>
+      {/* Les deux entrées sont à égalité : le nombre de versements n'est pas un
+          choix de la famille, il découle du mois de son inscription. */}
+      <ul className="mt-2 space-y-1 text-sm">
+        {entrees.map((e) => (
+          <li key={e.versements} className={e.enAvant ? 'text-lux-ink' : 'text-lux-slate'}>
+            {e.cadence} · {e.montants} · {e.entree}
+          </li>
+        ))}
+      </ul>
       <FraisDossier id={parcours.id} maintenant={maintenant} />
     </div>
   );
@@ -103,7 +107,11 @@ function CarteParcours({ parcours, maintenant }: { parcours: ParcoursCandidatLib
           <span>{parcours.creneaux}</span>
         </li>
       </ul>
-      <p className="mt-4 text-xs leading-5 text-lux-slate">{parcours.public}</p>
+      {/* Le total encadré, affiché parce qu'il est déclaré : le JSON-LD le
+          porte en courseWorkload, et une donnée structurée absente de la page
+          décrit une page qui n'existe pas. Les deux lisent le même champ. */}
+      <p className="mt-4 text-sm font-medium leading-6 text-lux-ink">{texteTotalEncadre(parcours)}</p>
+      <p className="mt-2 text-xs leading-5 text-lux-slate">{parcours.public}</p>
       <a
         href={buildWhatsAppUrl(
           b1a
@@ -125,10 +133,11 @@ export default function BacCandidatLibrePage() {
   const maintenant = new Date();
   const data = getCandidatsLibres2027();
   const [premiere, terminale] = data.parcours;
-  const faq = construireFaq(data);
+  const produitsCourts = produitsCourtsPublies();
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
   const offres = getFraisDossierOffertsActifs(maintenant);
+  const faq = construireFaq(data, { produitsCourts, fraisOfferts: offres.length > 0 });
   const echeances = [
     { libelle: 'Inscription Terminale', cloture: terminale.cyclades.cloture, ouverture: terminale.cyclades.ouverture },
     { libelle: 'Inscription Première', cloture: premiere.cyclades.cloture, ouverture: premiere.cyclades.ouverture },
@@ -160,7 +169,12 @@ export default function BacCandidatLibrePage() {
         name: p.titre,
         courseMode: 'onsite',
         location: adresse.full,
-        courseWorkload: `PT${p.heures_cours}H`,
+        // Le contrat vend les heures de cours ET le total encadré ; c'est le
+        // second qui est le total de ce que la famille reçoit — cours, épreuves
+        // blanches, oraux, bilans — et c'est cette donnée qu'une machine cite.
+        // Déclarer les seules heures de cours annoncerait moins que le contrat.
+        // Le texte lisible, lui, garde les heures de cours, là où elles sont nommées.
+        courseWorkload: dureeIso(p.heures_encadrees_total),
       })),
       offers: data.parcours.map((p) => ({
         '@type': 'Offer',
@@ -276,8 +290,16 @@ export default function BacCandidatLibrePage() {
           <div className="mt-8 rounded-2xl border border-lux-line bg-lux-white p-5 text-sm leading-6 text-lux-slate">
             <p>
               <strong className="font-semibold text-lux-ink">{data.groupe.max} places au maximum par groupe.</strong>{' '}
-              Un groupe ouvre à {data.groupe.ouverture_min} inscrits{NBSP}; s’il n’ouvre pas, vous êtes intégralement remboursé
-              sous {data.groupe.confirmation_remboursement_jours}{NBSP}jours.
+              Un groupe ouvre à {data.groupe.ouverture_min} inscrits payants{NBSP}; s’il n’ouvre pas, vous êtes
+              intégralement remboursé, frais de dossier compris, sous {data.groupe.remboursement_jours_ouvres}{NBSP}jours
+              ouvrés. La décision d’ouverture est prise au plus tard le {jourMois(data.calendrier.decision_ouverture)},
+              avant les premiers cours du {jourMois(data.calendrier.premiers_cours)}.
+            </p>
+            <p className="mt-2">
+              Le remboursement est intégral si le groupe n’ouvre pas, si vous renoncez avant le premier cours
+              {NBSP}— hors frais de dossier lorsqu’ils sont dus{NBSP}— ou si votre enfant s’avère inéligible au parcours
+              souscrit. Après le début des cours, le prix annuel reste dû, sauf motif grave documenté ou interruption
+              de notre fait. Les conditions complètes sont remises avant toute signature.
             </p>
             <p className="mt-2">
               Spécialités préparées — Première{NBSP}: {data.specialites.premiere.join(', ')} · Terminale{NBSP}:{' '}
@@ -401,23 +423,36 @@ export default function BacCandidatLibrePage() {
               </div>
             ))}
           </div>
+          <p className="mt-6 text-sm leading-6 text-lux-on-dark-muted">
+            Le mode d’emploi complet de la campagne, écran par écran{NBSP}:{' '}
+            <Link href="/inscription-bac-2027" className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory">
+              nos dossiers d’inscription 2027
+            </Link>
+            {' '}(bac général et bac STMG).
+          </p>
         </div>
       </section>
 
-      <section aria-labelledby="titre-stages" className="px-4 py-16 md:px-6">
-        <div className="mx-auto max-w-5xl">
-          <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les stages à la carte</h2>
-          <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.stages_a_la_carte.note}</p>
-          <ul className="mt-6 grid gap-3 sm:grid-cols-2">
-            {data.stages_a_la_carte.stages.map((s) => (
-              <li key={`${s.periode}-${s.niveau}`} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
-                <span className="font-semibold text-lux-ink">{s.periode}</span> · {s.niveau} · {s.heures}{NBSP}h ·{' '}
-                <span className="tabular-nums text-lux-ink">{tnd(s.prix)}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      {/* Grille adoptée par la direction le 16/10/2026, mais régime fiscal non
+          attesté par le comptable : le dossier bloque toute offre commerciale
+          ferme sur ce point. Rien n'est publié sans PRODUITS_COURTS_PUBLIES. */}
+      {produitsCourts ? (
+        <section aria-labelledby="titre-stages" className="px-4 py-16 md:px-6">
+          <div className="mx-auto max-w-5xl">
+            <h2 id="titre-stages" className="text-3xl font-fraunces text-lux-ink">Déjà inscrit ailleurs{NBSP}? Les produits courts</h2>
+            <p className="mt-4 max-w-3xl text-base leading-7 text-lux-slate">{data.produits_courts.note}</p>
+            <ul className="mt-6 grid gap-3 sm:grid-cols-2">
+              {data.produits_courts.produits.map((produit) => (
+                <li key={produit.id} className="rounded-xl border border-lux-line bg-lux-white px-4 py-3 text-sm text-lux-slate">
+                  <span className="font-semibold text-lux-ink">{produit.libelle}</span> ·{' '}
+                  <span className="tabular-nums text-lux-ink">{tnd(produit.prix)}</span>
+                  <span className="mt-1 block">{produit.contenu} · {produit.paiement}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null}
 
       <section aria-labelledby="titre-faq" className="bg-lux-white px-4 py-16 md:px-6">
         <div className="mx-auto max-w-4xl">
