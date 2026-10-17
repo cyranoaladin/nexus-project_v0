@@ -76,6 +76,17 @@ export function cloture(source) {
   return trouve[1];
 }
 
+/**
+ * L'adresse du portail d'inscription, lue sur le document audité — bloc
+ * « Les deux seules adresses utiles ». Elle n'est écrite nulle part ailleurs :
+ * le jour où le portail déménage, corriger le dossier suffit, et le site suit.
+ */
+export function lienCyclades(source) {
+  const trouve = /<a href="(https:\/\/candidat\.examens-concours\.gouv\.fr[^"]*)"/.exec(source);
+  if (!trouve) throw new Error('LIEN_CYCLADES_INTROUVABLE');
+  return trouve[1];
+}
+
 /** Description dérivée du document, jamais saisie à la main : aucune date inventée. */
 export function description(source, sujet) {
   const table = new Map(reperes(source));
@@ -185,6 +196,7 @@ export function manifeste() {
       titre: page.titre,
       description: description(source, page.sujet),
       cloture: cloture(source),
+      cyclades: lienCyclades(source),
     };
   });
 }

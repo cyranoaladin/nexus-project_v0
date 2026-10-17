@@ -24,6 +24,7 @@ import {
   produitsCourtsPublies,
   type ParcoursCandidatLibre,
 } from '@/lib/candidats-libres-2027';
+import { lienCycladesOfficiel } from '@/lib/inscription-2027';
 import { LEGAL } from '@/lib/legal';
 import { buildPageMetadata } from '@/lib/seo';
 import { buildWhatsAppUrl } from '@/lib/whatsapp';
@@ -136,6 +137,7 @@ export default function BacCandidatLibrePage() {
   const produitsCourts = produitsCourtsPublies();
   const semaine = getSemaineDiagnostic(maintenant);
   const ateliers = getAteliersCycladesAVenir(maintenant);
+  const lienCyclades = lienCycladesOfficiel();
   const offres = getFraisDossierOffertsActifs(maintenant);
   const faq = construireFaq(data, { produitsCourts, fraisOfferts: offres.length > 0 });
   const echeances = [
@@ -405,8 +407,16 @@ export default function BacCandidatLibrePage() {
             L’inscription au bac sur Cyclades, avec vous
           </h2>
           <p className="mt-4 max-w-3xl text-base leading-7 text-lux-on-dark-muted">
-            L’inscription est personnelle et se fait sur Cyclades. Nous vous accompagnons étape par étape, mais nous ne la
-            faisons jamais à votre place.
+            L’inscription est personnelle et se fait sur{' '}
+            <a
+              href={lienCyclades}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-lux-gold-wash underline underline-offset-4 hover:text-lux-ivory"
+            >
+              Cyclades, espace candidat
+            </a>
+            . Nous vous accompagnons étape par étape, mais nous ne la faisons jamais à votre place.
             {ateliers.length > 0
               ? ` Atelier gratuit les samedis ${ateliers.map(jourMois).join(', ')} à ${data.ateliers_cyclades.heure}, ${data.ateliers_cyclades.lieu}.`
               : ''}
